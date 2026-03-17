@@ -77,44 +77,89 @@ export default function InfoScreen() {
           </ThemedView>
         </Collapsible>
         <Collapsible title="Billetes de Bs. 10, invalidados">
-          <ThemedText>
-            Lista de rangos de la{" "}
-            <ThemedText type="defaultSemiBold">Serie B</ThemedText> de los
-            billetes de <ThemedText type="defaultSemiBold">10 Bs.</ThemedText>,{" "}
-            <ThemedText type="defaultSemiBold">sin valor legal</ThemedText>.
-          </ThemedText>
-          <ThemedView className="my-3">
+          <ThemedView className="gap-3">
+            <ThemedText>
+              Lista de rangos de la{" "}
+              <ThemedText type="defaultSemiBold">Serie B</ThemedText> de los
+              billetes de <ThemedText type="defaultSemiBold">Bs. 10</ThemedText>
+              , <ThemedText type="defaultSemiBold">sin valor legal</ThemedText>.
+            </ThemedText>
             <InvalidMoney denomination="10" />
+            <ThemedText>
+              Los billetes de Bs. 10 de la Serie B que no entren en la lista de
+              rangos anteriores, tienen plena validez legal.
+            </ThemedText>
+            <ThemedText>
+              <ThemedText type="defaultSemiBold">Tip</ThemedText>: Si el número
+              de serie del billete de Bs. 10 de la Serie B empieza con{" "}
+              <ThemedText type="defaultSemiBold">066</ThemedText> o inferior, es
+              legal y no requiere verificación.
+            </ThemedText>
           </ThemedView>
         </Collapsible>
         <Collapsible title="Billetes de Bs. 20, invalidados">
-          <ThemedText>
-            Lista de rangos de la{" "}
-            <ThemedText type="defaultSemiBold">Serie B</ThemedText> de los
-            billetes de <ThemedText type="defaultSemiBold">20 Bs.</ThemedText>,{" "}
-            <ThemedText type="defaultSemiBold">sin valor legal</ThemedText>.
-          </ThemedText>
-          <ThemedView className="my-3">
+          <ThemedView className="gap-3">
+            <ThemedText>
+              Lista de rangos de la{" "}
+              <ThemedText type="defaultSemiBold">Serie B</ThemedText> de los
+              billetes de <ThemedText type="defaultSemiBold">Bs. 20</ThemedText>
+              , <ThemedText type="defaultSemiBold">sin valor legal</ThemedText>.
+            </ThemedText>
             <InvalidMoney denomination="20" />
+            <ThemedText>
+              Los billetes de Bs. 20 de la Serie B que no entren en la lista de
+              rangos anteriores, tienen plena validez legal.
+            </ThemedText>
+            <ThemedText>
+              <ThemedText type="defaultSemiBold">Tip</ThemedText>: Si el número
+              de serie del billete de Bs. 20 de la Serie B empieza con{" "}
+              <ThemedText type="defaultSemiBold">086</ThemedText> o inferior, es
+              legal y no requiere verificación.
+            </ThemedText>
           </ThemedView>
         </Collapsible>
         <Collapsible title="Billetes de Bs. 50, invalidados">
-          <ThemedText>
-            Lista de rangos de la{" "}
-            <ThemedText type="defaultSemiBold">Serie B</ThemedText> de los
-            billetes de <ThemedText type="defaultSemiBold">50 Bs.</ThemedText>,{" "}
-            <ThemedText type="defaultSemiBold">sin valor legal</ThemedText>.
-          </ThemedText>
-          <ThemedView className="my-3">
+          <ThemedView className="gap-3">
+            <ThemedText>
+              Lista de rangos de la{" "}
+              <ThemedText type="defaultSemiBold">Serie B</ThemedText> de los
+              billetes de <ThemedText type="defaultSemiBold">Bs. 50</ThemedText>
+              , <ThemedText type="defaultSemiBold">sin valor legal</ThemedText>.
+            </ThemedText>
             <InvalidMoney denomination="50" />
+            <ThemedText>
+              Los billetes de Bs. 50 de la Serie B que no entren en la lista de
+              rangos anteriores, tienen plena validez legal.
+            </ThemedText>
+            <ThemedText>
+              <ThemedText type="defaultSemiBold">Tip</ThemedText>: Si el número
+              de serie del billete de Bs. 50 de la Serie B empieza con{" "}
+              <ThemedText type="defaultSemiBold">076</ThemedText> o inferior, es
+              legal y no requiere verificación.
+            </ThemedText>
           </ThemedView>
         </Collapsible>
         <Collapsible title="Política de privacidad">
           <ThemedText>
             Esta aplicación no recopila, almacena ni transmite ningún tipo de
-            información personal de los usuarios. Sólo sirve para verificar el
-            valor legal de los billetes de Bs. 10, Bs. 20 y Bs. 50 de la Serie
-            B, de acuerdo con la resolución del Banco Central de Bolivia.
+            información personal de los usuarios.
+          </ThemedText>
+        </Collapsible>
+        <Collapsible title="Términos y condiciones">
+          <ThemedText>
+            Esta aplicación{" "}
+            <ThemedText className="italic">solamente</ThemedText> es una
+            herramienta de consulta y verificación del valor legal de los
+            billetes de <ThemedText type="defaultSemiBold">Bs. 10</ThemedText>,{" "}
+            <ThemedText type="defaultSemiBold">Bs. 20</ThemedText> y{" "}
+            <ThemedText type="defaultSemiBold">Bs. 50</ThemedText> de la{" "}
+            <ThemedText type="defaultSemiBold">Serie B</ThemedText>, de acuerdo
+            con la resolución del{" "}
+            <ExternalLink href="https://www.bcb.gob.bo/">
+              <ThemedText className="font-normal" type="link">
+                Banco Central de Bolivia
+              </ThemedText>
+            </ExternalLink>
           </ThemedText>
         </Collapsible>
         <Collapsible title="Acerca de">
