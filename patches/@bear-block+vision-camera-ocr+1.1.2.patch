@@ -1,0 +1,13 @@
+diff --git a/node_modules/@bear-block/vision-camera-ocr/android/src/main/java/com/bearblock/visioncameraocr/visioncameraocr/OcrFrameProcessorPluginRegistry.kt b/node_modules/@bear-block/vision-camera-ocr/android/src/main/java/com/bearblock/visioncameraocr/visioncameraocr/OcrFrameProcessorPluginRegistry.kt
+index c890ac7..1bff6ba 100644
+--- a/node_modules/@bear-block/vision-camera-ocr/android/src/main/java/com/bearblock/visioncameraocr/visioncameraocr/OcrFrameProcessorPluginRegistry.kt
++++ b/node_modules/@bear-block/vision-camera-ocr/android/src/main/java/com/bearblock/visioncameraocr/visioncameraocr/OcrFrameProcessorPluginRegistry.kt
+@@ -10,7 +10,7 @@ class OcrFrameProcessorPluginRegistry {
+      */
+     init {
+       FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectText") { proxy, options ->
+-        OcrFrameProcessorPlugin(proxy, options)
++        OcrFrameProcessorPlugin(proxy)
+       }
+     }
+ 

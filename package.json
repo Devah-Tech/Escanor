@@ -10,7 +10,8 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format:check": "prettier . --check",
+    "postinstall": "npx patch-package"
   },
   "dependencies": {
     "@bear-block/vision-camera-ocr": "^1.1.2",
