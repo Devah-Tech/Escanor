@@ -6,15 +6,21 @@ import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useRouter } from "expo-router";
 import { Camera } from "lucide-react-native";
+import { useCameraPermission } from "react-native-vision-camera";
 
 export default function IndexScreen() {
   const colorScheme = useColorScheme();
   const router = useRouter();
+  const { hasPermission, requestPermission } = useCameraPermission();
 
   const colorText = Colors[colorScheme ?? "light"].text;
 
   const handleOpenCamera = () => {
-    router.push("/modal");
+    if (!hasPermission) {
+      requestPermission();
+    } else {
+      router.push("/modal");
+    }
   };
 
   return (
@@ -28,11 +34,11 @@ export default function IndexScreen() {
       <ThemedView className="gap-3 mb-6">
         <ThemedText>
           Use la cámara de su dispositivo para{" "}
-          <ThemedText type="defaultSemiBold">capturar y verificar</ThemedText>{" "}
+          <ThemedText type="defaultSemiBold">detectar y verificar</ThemedText>{" "}
           la validez de{" "}
-          <ThemedText type="defaultSemiBold">un billete</ThemedText>. Asegúrese
-          de que el billete esté completamente visible dentro del marco para
-          obtener mejores resultados.
+          <ThemedText type="defaultSemiBold">un billete</ThemedText>. No es
+          necesario enfocar todo el billete sino solamente la parte donde se
+          muestra el número de serie y el valor del billete.
         </ThemedText>
       </ThemedView>
       <Button
