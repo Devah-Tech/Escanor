@@ -200,7 +200,7 @@ export default function KeyInScreen() {
           <ButtonText>Limpiar</ButtonText>
         </Button>
         <Button
-          className="bg-cyan-600 dark:bg-white data-[active=true]:bg-cyan-500 dark:data-[active=true]:bg-gray-200"
+          className="bg-cyan-700 dark:bg-white data-[active=true]:bg-cyan-500 dark:data-[active=true]:bg-gray-200"
           variant="solid"
           size="lg"
           action="primary"

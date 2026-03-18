@@ -13,10 +13,10 @@ const Notification = ({ notification }: { notification: notificationType }) => {
   return (
     <Alert action={notification.type} className="mt-6 gap-3">
       <AlertIcon as={notification.icon} size="lg" />
-      <AlertText className="text-typography-900 font-semibold" size="sm">
+      <AlertText className="text-typography-900 font-semibold" size="md">
         {notification.title}
       </AlertText>
-      <AlertText className="text-typography-900" size="sm">
+      <AlertText className="text-typography-900" size="md">
         {notification.message}
       </AlertText>
     </Alert>
