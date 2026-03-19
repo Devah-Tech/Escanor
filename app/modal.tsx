@@ -133,7 +133,7 @@ const handleTextDetected = Worklets.createRunOnJS(
       showScannerDialog(
         "warning",
         "Lectura imprecisa",
-        "No se pudieron leer con la claridad suficiente el Valor y/o la Serie del billete.",
+        "No se pudo leer con la claridad suficiente el Valor y/o la Serie del billete.",
         "¿Desea volver a intentar escanear o prefiere salir?",
         "Reintentar",
         "Salir",
