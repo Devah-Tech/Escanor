@@ -43,7 +43,7 @@
       [
         "react-native-vision-camera",
         {
-          "cameraPermissionText": "$(PRODUCT_NAME) requiere acceso a tu cámara."
+          "cameraPermissionText": "$(PRODUCT_NAME) requiere acceso a la cámara de tu dispositivo."
         }
       ]
     ],

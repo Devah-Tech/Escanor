@@ -18,6 +18,12 @@ export default function IndexScreen() {
   const handleOpenCamera = () => {
     if (!hasPermission) {
       requestPermission();
+
+      if (!hasPermission) {
+        return;
+      } else {
+        router.push("/modal");
+      }
     } else {
       router.push("/modal");
     }
