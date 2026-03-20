@@ -1,3 +1,5 @@
+import { Platform } from "react-native";
+
 export interface RangeItem {
   a: string | number;
   b: string | number;
@@ -22,6 +24,7 @@ const findInRanges = <T extends RangeItem>(
 // Función para obtener el dato más repetido en el array, omitiendo nulls
 const getMostFrequentItem = (arr: (string | null)[]) => {
   const validItems = arr.filter((item): item is string => item !== null);
+
   if (validItems.length === 0) return null;
 
   const counts: Record<string, number> = {};
@@ -30,6 +33,7 @@ const getMostFrequentItem = (arr: (string | null)[]) => {
 
   for (const text of validItems) {
     counts[text] = (counts[text] || 0) + 1;
+
     if (counts[text] > maxCount) {
       maxCount = counts[text];
       mostFrequent = text;
@@ -44,7 +48,7 @@ const extractBanknoteData = (text: string) => {
   const cleanText = text.replace(/[\n\r]/g, " ").toUpperCase();
 
   // Buscar valor del billete boliviano (10, 20, 50, 100, 200)
-  const valueRegex = /\b(10|20|50|100|200)\b/;
+  const valueRegex = /\b(200|100|50|20|10)\b/;
   const valueMatch = cleanText.match(valueRegex);
   const value = valueMatch ? valueMatch[0] : null;
 
@@ -53,6 +57,7 @@ const extractBanknoteData = (text: string) => {
   const wordMatches = cleanText.match(serialRegex) || [];
 
   let serial: string | null = null;
+
   if (wordMatches.length > 0) {
     // Guardamos la serie tal como es (ej. "123456789 A"), verificando que no sea undefined
     serial = wordMatches[0] ?? null;
@@ -61,4 +66,19 @@ const extractBanknoteData = (text: string) => {
   return { value, serial };
 };
 
-export { extractBanknoteData, findInRanges, getMostFrequentItem, isInRange };
+// Verificar si es Android con API < 28 (Android < 9)
+const isLowAndroidVersion = (version: number): boolean =>
+  version > 0 && version < 28;
+
+// Obtener la versión de Android
+const getAndroidVersion = (): number =>
+  Platform.OS === "android" ? Platform.Version : 0;
+
+export {
+  extractBanknoteData,
+  findInRanges,
+  getAndroidVersion,
+  getMostFrequentItem,
+  isInRange,
+  isLowAndroidVersion,
+};

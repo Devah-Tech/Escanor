@@ -2,11 +2,13 @@ import NoCameraDevice from "@/components/no-camera-device";
 import {
   extractBanknoteData,
   findInRanges,
+  getAndroidVersion,
   getMostFrequentItem,
+  isLowAndroidVersion,
 } from "@/utils/functions";
 import { performOcr } from "@bear-block/vision-camera-ocr";
 import { router } from "expo-router";
-import React, { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 import {
   Camera,
@@ -22,174 +24,208 @@ type DenominationKey = keyof typeof db;
 
 const numberOfReadings = 12;
 
-let values: (string | null)[] = [];
-let serials: (string | null)[] = [];
-
-let resetFrameProcessor = () => {};
-let stopReadings = () => {};
-
-// Función general en JS para mostrar los diálogos de alerta del escáner
-const showScannerDialog = Worklets.createRunOnJS(
-  (
-    type: "error" | "success" | "warning",
-    title: string,
-    subtitle: string | null,
-    message: string,
-    confirmText?: string,
-    cancelText?: string,
-  ) => {
-    // Si el usuario da a cancelar (oculta en éxito) o se regresa, vaciamos variables y salimos
-    const handleExit = () => {
-      values = [];
-      serials = [];
-      router.back();
-    };
-
-    // Si el usuario decide reescanear (solo en reintento)
-    const handleRetry = () => {
-      values = [];
-      serials = [];
-      resetFrameProcessor();
-    };
-
-    if (type === "error") {
-      Alert.alert(title, (subtitle ? subtitle + "\n\n" : "") + message, [
-        { text: confirmText ?? "Ok", onPress: handleExit },
-      ]);
-    } else {
-      Alert.alert(title, (subtitle ? subtitle + "\n\n" : "") + message, [
-        {
-          text: cancelText ?? "Cancelar",
-          style: "cancel",
-          onPress: handleExit,
-        },
-        { text: confirmText ?? "Ok", onPress: handleRetry },
-      ]);
-    }
-  },
-);
-
-// Envolvemos la función con createRunOnJS para poder llamarla desde el worklet de forma segura
-const handleTextDetected = Worklets.createRunOnJS(
-  (text: string, count: number) => {
-    // Limpiamos los arrays si es la primera lectura de la ráfaga (por seguridad extra)
-    if (count === 1) {
-      values = [];
-      serials = [];
-    }
-
-    const { value, serial } = extractBanknoteData(text);
-
-    values.push(value);
-    serials.push(serial);
-
-    const finalValue = getMostFrequentItem(values);
-    const finalSerial = getMostFrequentItem(serials);
-
-    const aciertosCorte = finalValue?.maxCount ?? 0;
-    const aciertosSerie = finalSerial?.maxCount ?? 0;
-
-    // Cuando se cumple la condición de tener al menos 1 acierto en Corte y Serie, procesamos
-    if (aciertosCorte >= 1 && aciertosSerie >= 1) {
-      stopReadings();
-
-      const denomination = finalValue?.mostFrequent as DenominationKey;
-      const serialText = finalSerial?.mostFrequent as string;
-
-      const serialNumber = serialText.split(" ")[0];
-      const serialLetter = serialText.split(" ")[1];
-
-      if (serialLetter !== "B") {
-        showScannerDialog(
-          "success",
-          "Billete detectado",
-          `Valor: Bs. ${finalValue?.mostFrequent} | Serie: ${finalSerial?.mostFrequent}`,
-          `✅ El billete tiene valor legal.\n\nNo es necesario validar billetes de la Serie ${serialLetter}.`,
-          "Escanear otro billete",
-          "Salir",
-        );
-      } else {
-        if (findInRanges(db[denomination], Number(serialNumber))) {
-          showScannerDialog(
-            "success",
-            "Billete detectado",
-            `Valor: Bs. ${finalValue?.mostFrequent} | Serie: ${finalSerial?.mostFrequent}`,
-            "✅ ¡Este billete tiene valor legal!",
-            "Escanear otro billete",
-            "Salir",
-          );
-        } else {
-          showScannerDialog(
-            "success",
-            "Billete detectado",
-            `Valor: Bs. ${finalValue?.mostFrequent} | Serie: ${finalSerial?.mostFrequent}`,
-            "❌ ¡Este billete no tiene valor legal!",
-            "Escanear otro billete",
-            "Salir",
-          );
-        }
-      }
-    } else if (count === numberOfReadings) {
-      showScannerDialog(
-        "warning",
-        "Lectura imprecisa",
-        "No se pudo leer con la claridad suficiente el Valor y/o la Serie del billete.",
-        "¿Desea volver a intentar escanear o prefiere salir?",
-        "Reintentar",
-        "Salir",
-      );
-    }
-  },
-);
+const fps = isLowAndroidVersion(getAndroidVersion()) ? 5 : 6;
 
 export default function ModalScreen() {
   const device = useCameraDevice("back");
+
+  const valuesRef = useRef<(string | null)[]>([]);
+  const serialsRef = useRef<(string | null)[]>([]);
+
   const readingsCount = useSharedValue(0);
 
-  // Instanciamos el reset para poder usarlo desde el JS de forma segura
-  resetFrameProcessor = () => {
-    readingsCount.value = 0;
-  };
+  // Función con createRunOnJS para mostrar los diálogos de alerta del escáner
+  const showScannerDialog = useMemo(
+    () =>
+      Worklets.createRunOnJS(
+        (
+          type: "error" | "success" | "warning",
+          title: string,
+          subtitle: string | null,
+          message: string,
+          confirmText?: string,
+          cancelText?: string,
+        ) => {
+          // Al Salir
+          const handleExit = () => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/");
+            }
+          };
 
-  // Detener el procesamiento de nuevos frames
-  stopReadings = () => {
-    readingsCount.value = numberOfReadings;
-  };
+          // Al Reintentar
+          const handleRetry = () => {
+            valuesRef.current = [];
+            serialsRef.current = [];
+            readingsCount.value = 0; // Reiniciar para nuevo escaneo
+          };
 
-  // Restablecer siempre el estado de manera estricta cada vez que se abre la vista del Modal
-  useEffect(() => {
-    values = [];
-    serials = [];
-    readingsCount.value = 0;
-  }, []);
+          if (type === "error") {
+            Alert.alert(title, (subtitle ? subtitle + "\n\n" : "") + message, [
+              { text: confirmText ?? "Ok", onPress: handleExit },
+            ]);
+          } else {
+            const isLowAndroid = isLowAndroidVersion(getAndroidVersion());
 
-  // Procesador de frames para OCR
-  const frameProcessor = useFrameProcessor((frame) => {
-    "worklet";
+            if (isLowAndroid) {
+              Alert.alert(
+                title,
+                (subtitle ? subtitle + "\n\n" : "") + message,
+                [{ text: "Ok", onPress: handleExit }],
+              );
+            } else {
+              Alert.alert(
+                title,
+                (subtitle ? subtitle + "\n\n" : "") + message,
+                [
+                  {
+                    text: cancelText ?? "Cancelar",
+                    style: "cancel",
+                    onPress: handleExit,
+                  },
+                  { text: confirmText ?? "Ok", onPress: handleRetry },
+                ],
+              );
+            }
+          }
+        },
+      ),
+    [],
+  );
 
-    try {
-      if (readingsCount.value >= numberOfReadings) {
-        return;
-      }
+  // Función para detectar el texto con createRunOnJS para poder llamarla desde el worklet de forma segura
+  const handleTextDetected = useMemo(
+    () =>
+      Worklets.createRunOnJS((text: string, count: number) => {
+        const { value, serial } = extractBanknoteData(text);
 
-      runAtTargetFps(6, () => {
-        const result = performOcr(frame);
+        valuesRef.current.push(value);
+        serialsRef.current.push(serial);
 
-        if (result?.text) {
-          readingsCount.value += 1;
-          handleTextDetected(result.text, readingsCount.value);
+        const finalValue = getMostFrequentItem(valuesRef.current);
+        const finalSerial = getMostFrequentItem(serialsRef.current);
+
+        const valueSuccesses = finalValue?.maxCount ?? 0;
+        const serialSuccesses = finalSerial?.maxCount ?? 0;
+
+        // Cuando se cumple la condición de tener al menos 1 acierto en el Valor y la Serie, procesamos
+        if (valueSuccesses >= 1 && serialSuccesses >= 1) {
+          readingsCount.value = numberOfReadings; // Igualar para parar el proceso de escaneo
+
+          const denomination = finalValue?.mostFrequent;
+          const serialText = finalSerial?.mostFrequent as string;
+
+          const serialNumber = serialText.split(" ")[0];
+          const serialLetter = serialText.split(" ")[1];
+
+          if (serialLetter !== "B") {
+            showScannerDialog(
+              "success",
+              "Billete detectado",
+              `Valor: Bs. ${finalValue?.mostFrequent} | Serie: ${finalSerial?.mostFrequent}`,
+              `✅ El billete tiene valor legal.\n\nNo es necesario validar billetes de la Serie ${serialLetter}.`,
+              "Escanear otro billete",
+              "Salir",
+            );
+          } else {
+            if (denomination === "100" || denomination === "200") {
+              showScannerDialog(
+                "success",
+                "Billete detectado",
+                `Valor: Bs. ${finalValue?.mostFrequent} | Serie: ${finalSerial?.mostFrequent}`,
+                `✅ El billete tiene valor legal.\n\nNo es necesario validar billetes de Bs. ${finalValue?.mostFrequent} de la Serie ${serialLetter}.`,
+                "Escanear otro billete",
+                "Salir",
+              );
+            } else {
+              if (
+                findInRanges(
+                  db[denomination as DenominationKey],
+                  Number(serialNumber),
+                )
+              ) {
+                showScannerDialog(
+                  "success",
+                  "Billete detectado",
+                  `Valor: Bs. ${finalValue?.mostFrequent} | Serie: ${finalSerial?.mostFrequent}`,
+                  "✅ ¡Este billete tiene valor legal!",
+                  "Escanear otro billete",
+                  "Salir",
+                );
+              } else {
+                showScannerDialog(
+                  "success",
+                  "Billete detectado",
+                  `Valor: Bs. ${finalValue?.mostFrequent} | Serie: ${finalSerial?.mostFrequent}`,
+                  "❌ ¡Este billete no tiene valor legal!",
+                  "Escanear otro billete",
+                  "Salir",
+                );
+              }
+            }
+          }
+        } else if (count === numberOfReadings) {
+          showScannerDialog(
+            "warning",
+            "Lectura imprecisa",
+            "No se pudo leer con la claridad suficiente el Valor y/o la Serie del billete.",
+            "¿Desea volver a intentar escanear o prefiere salir?",
+            "Reintentar",
+            "Salir",
+          );
         }
-      });
-    } catch (error) {
-      showScannerDialog(
-        "error",
-        "Error en el procesador de frames",
-        `${error}`,
-        "Ocurrió un error inesperado en el proceso de escaneo. Por favor, vuelve a intentar.",
-        "Salir",
-      );
-    }
+      }),
+    [],
+  );
+
+  // Inicializar estado al montar/desmontar el modal
+  useEffect(() => {
+    valuesRef.current = [];
+    serialsRef.current = [];
+    readingsCount.value = 0;
+
+    return () => {
+      valuesRef.current = [];
+      serialsRef.current = [];
+      readingsCount.value = 0;
+    };
   }, []);
+
+  // Procesador de frames OCR
+  const frameProcessor = useFrameProcessor(
+    (frame) => {
+      "worklet";
+
+      try {
+        if (readingsCount.value >= numberOfReadings) {
+          return;
+        }
+
+        runAtTargetFps(fps, () => {
+          const result = performOcr(frame);
+
+          if (result?.text) {
+            readingsCount.value += 1;
+            handleTextDetected(result.text, readingsCount.value);
+          }
+        });
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+
+        showScannerDialog(
+          "error",
+          "Error en el proceso OCR",
+          errorMessage,
+          "Ocurrió un error inesperado en el proceso OCR. Por favor, vuelve a intentar.",
+          "Salir",
+        );
+      }
+    },
+    [handleTextDetected, showScannerDialog],
+  );
 
   if (device === undefined) return <NoCameraDevice />;
 

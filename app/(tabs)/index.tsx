@@ -15,11 +15,11 @@ export default function IndexScreen() {
 
   const colorText = Colors[colorScheme ?? "light"].text;
 
-  const handleOpenCamera = () => {
+  const handleOpenCamera = async () => {
     if (!hasPermission) {
-      requestPermission();
+      const permission = await requestPermission();
 
-      if (!hasPermission) {
+      if (!permission) {
         return;
       } else {
         router.push("/modal");
