@@ -1,5 +1,3 @@
-import { Platform } from "react-native";
-
 export interface RangeItem {
   a: string | number;
   b: string | number;
@@ -66,19 +64,4 @@ const extractBanknoteData = (text: string) => {
   return { value, serial };
 };
 
-// Verificar si es Android con API < 28 (Android < 9)
-const isLowAndroidVersion = (version: number): boolean =>
-  version > 0 && version < 28;
-
-// Obtener la versión de Android
-const getAndroidVersion = (): number =>
-  Platform.OS === "android" ? Platform.Version : 0;
-
-export {
-  extractBanknoteData,
-  findInRanges,
-  getAndroidVersion,
-  getMostFrequentItem,
-  isInRange,
-  isLowAndroidVersion,
-};
+export { extractBanknoteData, findInRanges, getMostFrequentItem, isInRange };

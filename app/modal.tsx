@@ -1,10 +1,9 @@
 import NoCameraDevice from "@/components/no-camera-device";
+import { isLowAndroid } from "@/constants/android";
 import {
   extractBanknoteData,
   findInRanges,
-  getAndroidVersion,
   getMostFrequentItem,
-  isLowAndroidVersion,
 } from "@/utils/functions";
 import { performOcr } from "@bear-block/vision-camera-ocr";
 import { router } from "expo-router";
@@ -24,7 +23,7 @@ type DenominationKey = keyof typeof db;
 
 const numberOfReadings = 12;
 
-const fps = isLowAndroidVersion(getAndroidVersion()) ? 5 : 6;
+const fps = isLowAndroid ? 5 : 6;
 
 export default function ModalScreen() {
   const device = useCameraDevice("back");
@@ -67,8 +66,6 @@ export default function ModalScreen() {
               { text: confirmText ?? "Ok", onPress: handleExit },
             ]);
           } else {
-            const isLowAndroid = isLowAndroidVersion(getAndroidVersion());
-
             if (isLowAndroid) {
               Alert.alert(
                 title,
@@ -185,12 +182,6 @@ export default function ModalScreen() {
     valuesRef.current = [];
     serialsRef.current = [];
     readingsCount.value = 0;
-
-    return () => {
-      valuesRef.current = [];
-      serialsRef.current = [];
-      readingsCount.value = 0;
-    };
   }, []);
 
   // Procesador de frames OCR
