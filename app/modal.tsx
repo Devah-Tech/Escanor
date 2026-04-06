@@ -147,7 +147,7 @@ export default function ModalScreen() {
                   "success",
                   "Billete detectado",
                   `Valor: Bs. ${finalValue?.mostFrequent} | Serie: ${finalSerial?.mostFrequent}`,
-                  "✅ ¡Este billete tiene valor legal!",
+                  "❌ ¡Este billete no tiene valor legal!",
                   "Escanear otro billete",
                   "Salir",
                 );
@@ -156,7 +156,7 @@ export default function ModalScreen() {
                   "success",
                   "Billete detectado",
                   `Valor: Bs. ${finalValue?.mostFrequent} | Serie: ${finalSerial?.mostFrequent}`,
-                  "❌ ¡Este billete no tiene valor legal!",
+                  "✅ ¡Este billete tiene valor legal!",
                   "Escanear otro billete",
                   "Salir",
                 );
