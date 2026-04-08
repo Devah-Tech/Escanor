@@ -107,7 +107,6 @@ export default function ModalScreen() {
         const valueSuccesses = finalValue?.maxCount ?? 0;
         const serialSuccesses = finalSerial?.maxCount ?? 0;
 
-        // Cuando se cumple la condición de tener al menos 1 acierto en el Valor y la Serie, procesamos
         if (valueSuccesses >= 1 && serialSuccesses >= 1) {
           readingsCount.value = numberOfReadings; // Igualar para parar el proceso de escaneo
 
@@ -122,7 +121,7 @@ export default function ModalScreen() {
               "success",
               "Billete detectado",
               `Valor: Bs. ${finalValue?.mostFrequent} | Serie: ${finalSerial?.mostFrequent}`,
-              `✅ El billete tiene valor legal.\n\nNo es necesario validar billetes de la Serie ${serialLetter}.`,
+              `✅ El billete tiene valor legal.\n\nNo es necesario validar billetes de la Serie ${serialLetter}. 😉`,
               "Escanear otro billete",
               "Salir",
             );
@@ -132,7 +131,7 @@ export default function ModalScreen() {
                 "success",
                 "Billete detectado",
                 `Valor: Bs. ${finalValue?.mostFrequent} | Serie: ${finalSerial?.mostFrequent}`,
-                `✅ El billete tiene valor legal.\n\nNo es necesario validar billetes de Bs. ${finalValue?.mostFrequent} de la Serie ${serialLetter}.`,
+                `✅ El billete tiene valor legal.\n\nNo es necesario validar billetes de Bs. ${finalValue?.mostFrequent} de la Serie ${serialLetter}. 😉`,
                 "Escanear otro billete",
                 "Salir",
               );
@@ -147,7 +146,7 @@ export default function ModalScreen() {
                   "success",
                   "Billete detectado",
                   `Valor: Bs. ${finalValue?.mostFrequent} | Serie: ${finalSerial?.mostFrequent}`,
-                  "❌ ¡Este billete no tiene valor legal!",
+                  "❌ ¡El billete no tiene valor legal! 😨",
                   "Escanear otro billete",
                   "Salir",
                 );
@@ -156,7 +155,7 @@ export default function ModalScreen() {
                   "success",
                   "Billete detectado",
                   `Valor: Bs. ${finalValue?.mostFrequent} | Serie: ${finalSerial?.mostFrequent}`,
-                  "✅ ¡Este billete tiene valor legal!",
+                  "✅ ¡El billete tiene valor legal! 😀",
                   "Escanear otro billete",
                   "Salir",
                 );
@@ -167,7 +166,7 @@ export default function ModalScreen() {
           showScannerDialog(
             "warning",
             "Lectura imprecisa",
-            "No se pudo leer con la claridad suficiente el Valor y/o la Serie del billete.",
+            "No se pudo leer con la claridad suficiente el Valor y/o la Serie del billete. 😬",
             "¿Desea volver a intentar escanear o prefiere salir?",
             "Reintentar",
             "Salir",
@@ -177,7 +176,7 @@ export default function ModalScreen() {
     [],
   );
 
-  // Inicializar estado al montar/desmontar el modal
+  // Inicializar estado al montar el modal
   useEffect(() => {
     valuesRef.current = [];
     serialsRef.current = [];
